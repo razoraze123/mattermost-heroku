@@ -1,5 +1,6 @@
-[[ ${FILE_SETTINGS__DRIVER_NAME} != "local" ]] || echo "WARNING! Files are being are being stored on disk and will be wiped periodically. This means anything you upload to Mattemost will disappear. For non-preview instances, please use Amazon S3 or install a production setup https://www.mattermost.org/installation/"
+#!/bin/bash
 
+[[ ${FILE_SETTINGS__DRIVER_NAME} != "local" ]] || echo "WARNING! Files are being stored on disk and will be wiped periodically. This means anything you upload to Mattermost will disappear. For non-preview instances, please use Amazon S3 or install a production setup https://www.mattermost.org/installation/"
 
 export SERVICE_SETTINGS__SITEURL=${SERVICE_SETTINGS__SITEURL:=""}
 
@@ -25,11 +26,18 @@ export EMAIL_SETTINGS__SEND_PUSH_NOTIFICATIONS=${EMAIL_SETTINGS__SEND_PUSH_NOTIF
 export EMAIL_SETTINGS__PUSH_NOTIFICATION_SERVER=${EMAIL_SETTINGS__PUSH_NOTIFICATION_SERVER:=""}
 export EMAIL_SETTINGS__PUSH_NOTIFICATION_CONTENTS=${EMAIL_SETTINGS__PUSH_NOTIFICATION_CONTENTS:="generic"}
 
-
 export SESSION_LENGTH__WEB=${SESSION_LENGTH__WEB:=30}
 export SESSION_LENGTH__MOBILE=${SESSION_LENGTH__MOBILE:=30}
 export SESSION_LENGTH__SSO=${SESSION_LENGTH__SSO:=30}
 
+# --- AJOUT POUR HEROKU : Gestion dynamique du port réseau ---
+# Si Heroku ne fournit pas de PORT (ex: test en local), on utilise 8065 par défaut
+export PORT=${PORT:=8065}
+# On formate l'adresse d'écoute avec le "deux-points" comme l'exige Mattermost
+export SERVICE_SETTINGS__LISTENADDRESS=":${PORT}"
+export MM_SERVICESETTINGS_LISTENADDRESS=":${PORT}"
+# -----------------------------------------------------------
+
 lib/envsubst < config/config-heroku-template.json > config/config-heroku.json
 
-bin/mattermost --config=config/config-heroku.json
+exec bin/mattermost --config=config/config-heroku.json

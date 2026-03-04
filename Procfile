@@ -1,1 +1,1 @@
-web: ./mattermost/bin/mattermost
+web: ./run.sh
